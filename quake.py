@@ -29,32 +29,41 @@ def getQuakes():
 def utc_to_local(utc_dt):
     return utc_dt.replace(tzinfo=timezone.utc).astimezone(tz=None)
 
-def readLast():
+def readSaved():
     f = open("last.txt", "r")
-    return f.read()
+    return json.load(f)
 
-def writeLast(timestamp):
-    f = open("last.txt", "w")
-    f.write(timestamp)
-    f.close()
+def saveLast(timestamp,id):
+    data = {
+        "timestamp" : str(timestamp),
+        "id" : str(id)
+    }
+    with open('last.txt', 'w') as f:
+        json.dump(data, f, ensure_ascii=False)
     return
 
-print("Last event at " + parse(readLast()).strftime("%r %A %d %B %y"))
 
+
+savedEvent = readSaved()
+
+print("Last event "+ savedEvent["id"] +" at " + parse(savedEvent["timestamp"]).strftime("%r %A %d %B %y"))
+#saveLast("a","b")
 while True:
     quakes = getQuakes()
     if quakes:
         lastevent = quakes['features'][0]
         lasttime = utc_to_local(parse(lastevent['properties']['time']))
+        lastid = str(lastevent['properties']['publicID'])
+        saveid = readSaved()["id"]
+        
+        if saveid != lastid:
 
-
-        if str(lasttime) != readLast():
-            print("New Data")
+            print("New Data. ID:" + lastid)
             print("New Event at " + lasttime.strftime("%r %A %d %B %y"))
             lastpos = getPos(lastevent['geometry']['coordinates'])
             print(str(dstWlg(lastpos)) + "km from Wellington")
             print("Time now " + datetime.now().strftime("%r %A %d %B %y"))
-            writeLast(str(lasttime))
+            saveLast(lasttime,lastid)
     else:
         print("Error")
     time.sleep(5)
