@@ -4,6 +4,8 @@ from dateutil.parser import parse
 from datetime import datetime, timezone
 import time
 from geopy import distance
+from colorama import Fore, Back, Style
+
 
 api = "https://api.geonet.org.nz/quake?MMI=-1"
 
@@ -45,8 +47,8 @@ def saveLast(timestamp,id):
 
 
 savedEvent = readSaved()
-
-print("Last event "+ savedEvent["id"] +" at " + parse(savedEvent["timestamp"]).strftime("%r %A %d %B %y"))
+savedTime = parse(savedEvent["timestamp"]).replace(tzinfo=None)
+print("Last event "+ savedEvent["id"] +" at " + savedTime.strftime("%r %A %d %B %y"))
 #saveLast("a","b")
 while True:
     quakes = getQuakes()
@@ -56,14 +58,17 @@ while True:
         lastid = str(lastevent['properties']['publicID'])
         saveid = readSaved()["id"]
         
+        #New Quake
         if saveid != lastid:
-
-            print("New Data. ID:" + lastid)
-            print("New Event at " + lasttime.strftime("%r %A %d %B %y"))
             lastpos = getPos(lastevent['geometry']['coordinates'])
-            print(str(dstWlg(lastpos)) + "km from Wellington")
-            print("Time now " + datetime.now().strftime("%r %A %d %B %y"))
+            locname = lastevent['properties']['locality']
+            mag = str(round(lastevent['properties']['magnitude'],1))
+            dist = dstWlg(lastpos)
+            if dist < 300:
+                print("New Quake: " + lastid + " magnitude: " + mag + " at " + lasttime.strftime("%r %A %d %B %y") + " " + str(dist) + "km from Wellington, " + locname )
+                delay = round((datetime.now().replace(tzinfo=None) - savedTime).total_seconds())
+                print("Time now " + datetime.now().strftime("%r %A %d %B %y") + " Reporting delay: " + str(delay) + " seconds")
             saveLast(lasttime,lastid)
     else:
-        print("Error")
+        print(Fore.RED + "Error Retreiving Quakes" + Style.RESET_ALL)
     time.sleep(5)
