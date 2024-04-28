@@ -49,26 +49,29 @@ def saveLast(timestamp,id):
 savedEvent = readSaved()
 savedTime = parse(savedEvent["timestamp"]).replace(tzinfo=None)
 print("Last event "+ savedEvent["id"] +" at " + savedTime.strftime("%r %A %d %B %y"))
-#saveLast("a","b")
+lastQuakes = ""
 while True:
     quakes = getQuakes()
-    if quakes:
-        lastevent = quakes['features'][0]
-        lasttime = utc_to_local(parse(lastevent['properties']['time']))
-        lastid = str(lastevent['properties']['publicID'])
-        saveid = readSaved()["id"]
-        
-        #New Quake
-        if saveid != lastid:
-            lastpos = getPos(lastevent['geometry']['coordinates'])
-            locname = lastevent['properties']['locality']
-            mag = str(round(lastevent['properties']['magnitude'],1))
-            dist = dstWlg(lastpos)
-            if dist < 300:
-                print("New Quake: " + lastid + " magnitude: " + mag + " at " + lasttime.strftime("%r %A %d %B %y") + " " + str(dist) + "km from Wellington, " + locname )
-                delay = round((datetime.now().replace(tzinfo=None) - savedTime).total_seconds())
-                print("Time now " + datetime.now().strftime("%r %A %d %B %y") + " Reporting delay: " + str(delay) + " seconds")
-            saveLast(lasttime,lastid)
-    else:
-        print(Fore.RED + "Error Retreiving Quakes" + Style.RESET_ALL)
+    if quakes != lastQuakes:
+        lastQuakes = quakes
+        print("New Data")
+        if quakes:
+            lastevent = quakes['features'][0]
+            lasttime = utc_to_local(parse(lastevent['properties']['time']))
+            lastid = str(lastevent['properties']['publicID'])
+            saveid = readSaved()["id"]
+
+            #New Quake
+            if saveid != lastid:
+                lastpos = getPos(lastevent['geometry']['coordinates'])
+                locname = lastevent['properties']['locality']
+                mag = str(round(lastevent['properties']['magnitude'],1))
+                dist = dstWlg(lastpos)
+                if dist < 300:
+                    print("New Quake: " + lastid + " magnitude: " + mag + " at " + lasttime.strftime("%r %A %d %B %y") + " " + str(dist) + "km from Wellington, " + locname )
+                    delay = round((datetime.now().replace(tzinfo=None) - savedTime).total_seconds())
+                    print("Time now " + datetime.now().strftime("%r %A %d %B %y") + " Reporting delay: " + str(delay) + " seconds")
+                saveLast(lasttime,lastid)
+        else:
+            print(Fore.RED + "Error Retreiving Quakes" + Style.RESET_ALL)
     time.sleep(5)
