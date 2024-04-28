@@ -71,7 +71,7 @@ while True:
                 if dist < maxdist:
                     print("New Quake: " + lastid + " magnitude: " + mag + " at " + lasttime.strftime("%r %A %d %B %y") + " " + str(dist) + "km from Wellington, " + locname )
                     timenow = datetime.now().replace(tzinfo=None)
-                    timediff = (timenow - savedTime).total_seconds()
+                    timediff = (timenow - lasttime).total_seconds()
                     delay = round(timediff)
                     print("Time now " + datetime.now().strftime("%r %A %d %B %y") + " Reporting delay: " + str(delay) + " seconds")
                 else:
