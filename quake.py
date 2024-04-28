@@ -8,6 +8,7 @@ from colorama import Fore, Back, Style
 
 
 api = "https://api.geonet.org.nz/quake?MMI=-1"
+maxdist = 300
 
 def dstWlg(pos):
     wellington = (-41.32, 174.81)
@@ -45,11 +46,11 @@ def saveLast(timestamp,id):
     return
 
 
-
+lastQuakes = ""
 savedEvent = readSaved()
 savedTime = parse(savedEvent["timestamp"]).replace(tzinfo=None)
 print("Last event "+ savedEvent["id"] +" at " + savedTime.strftime("%r %A %d %B %y"))
-lastQuakes = ""
+
 while True:
     quakes = getQuakes()
     if quakes != lastQuakes:
@@ -67,11 +68,16 @@ while True:
                 locname = lastevent['properties']['locality']
                 mag = str(round(lastevent['properties']['magnitude'],1))
                 dist = dstWlg(lastpos)
-                if dist < 300:
+                if dist < maxdist:
                     print("New Quake: " + lastid + " magnitude: " + mag + " at " + lasttime.strftime("%r %A %d %B %y") + " " + str(dist) + "km from Wellington, " + locname )
-                    delay = round((datetime.now().replace(tzinfo=None) - savedTime).total_seconds())
+                    timenow = datetime.now().replace(tzinfo=None)
+                    timediff = (timenow - savedTime).total_seconds()
+                    delay = round(timediff)
                     print("Time now " + datetime.now().strftime("%r %A %d %B %y") + " Reporting delay: " + str(delay) + " seconds")
+                else:
+                    print("Quake " + str(dist) + "km away, " + locname)
                 saveLast(lasttime,lastid)
+
         else:
             print(Fore.RED + "Error Retreiving Quakes" + Style.RESET_ALL)
     time.sleep(5)
