@@ -36,6 +36,12 @@ def readSaved():
     f = open("last.txt", "r")
     return json.load(f)
 
+def getDelay(lasttime):
+        timenow = datetime.now().replace(tzinfo=None)
+        lasttime = lasttime.replace(tzinfo=None)
+        timediff = (timenow - lasttime).total_seconds()
+        return round(timediff)
+
 def saveLast(timestamp,id):
     data = {
         "timestamp" : str(timestamp),
@@ -70,10 +76,8 @@ while True:
                 dist = dstWlg(lastpos)
                 if dist < maxdist:
                     print("New Quake: " + lastid + " magnitude: " + mag + " at " + lasttime.strftime("%r %A %d %B %y") + " " + str(dist) + "km from Wellington, " + locname )
-                    timenow = datetime.now().replace(tzinfo=None)
-                    timediff = (timenow - lasttime).total_seconds()
-                    delay = round(timediff)
-                    print("Time now " + datetime.now().strftime("%r %A %d %B %y") + " Reporting delay: " + str(delay) + " seconds")
+
+                    print("Time now " + datetime.now().strftime("%r %A %d %B %y") + " Reporting delay: " + str(getDelay(lasttime)) + " seconds")
                 else:
                     print("Quake " + str(dist) + "km away, " + locname)
                 saveLast(lasttime,lastid)
