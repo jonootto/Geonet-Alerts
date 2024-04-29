@@ -81,7 +81,9 @@ savedTime = parse(savedEvent["timestamp"]).replace(tzinfo=None)
 print("Last event "+ savedEvent["id"] +" at " + savedTime.strftime("%r %A %d %B %y"))
 
 pub.subscribe(onConnection, "meshtastic.connection.established")
-
+interface = connectMeshtastic(radioHostname)
+print("Connect test successful")
+interface.close()
 
 while True:
     quakes = getQuakes()
