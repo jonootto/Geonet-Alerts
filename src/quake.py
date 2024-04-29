@@ -14,12 +14,15 @@ from dotenv import load_dotenv
 
 
 load_dotenv()
+
 api = "https://api.geonet.org.nz/quake?MMI=-1"
 maxdist = 400 #km
 minmag = 3
 radioHostname = os.environ["RADIO_HOSTNAME"]
 channel = int(os.environ.get("CHANNEL_INDEX",1))
 
+
+timef = "%r %A %d %B %y"
 
 def onConnection(interface, topic=pub.AUTO_TOPIC):
     print("Connected to radio: " + interface.getLongName())
@@ -76,10 +79,16 @@ def connectMeshtastic(host):
             print(Fore.RED + "Connection Failed" + Style.RESET_ALL)
     return radio
 
+def sendMsg(msgtxt):
+    interface = connectMeshtastic(radioHostname)
+    print("Sending to mesh...")
+    interface.sendText(msgtxt,channelIndex=channel,wantAck=True)
+    interface.close()
+
 lastQuakes = ""
 savedEvent = readSaved()
 savedTime = parse(savedEvent["timestamp"]).replace(tzinfo=None)
-print("Last event "+ savedEvent["id"] +" at " + savedTime.strftime("%r %A %d %B %y"))
+print("Last event "+ savedEvent["id"] +" at " + savedTime.strftime(timef))
 
 pub.subscribe(onConnection, "meshtastic.connection.established")
 interface = connectMeshtastic(radioHostname)
@@ -104,15 +113,12 @@ while True:
                 mag = str(round(lastevent['properties']['magnitude'],1))
                 dist = dstWlg(lastpos)
                 if (dist < maxdist) and (mag >= minmag):
-                    msg = str("New Quake at " +lasttime.strftime("%r %A %d %B %y")+ ". Magnitude: " + mag + ". " + str(dist) + "km from Wellington, " + locname)
+                    msg = str("New Quake at " +lasttime.strftime(timef)+ ". Magnitude: " + mag + ". " + str(dist) + "km from Wellington, " + locname)
                     print(msg)
-                    interface = connectMeshtastic(radioHostname)
-                    print("Sending to mesh...")
-                    interface.sendText(msg,channelIndex=channel,wantAck=True)
-                    interface.close()
-                    print("Time now " + datetime.now().strftime("%r %A %d %B %y") + " Reporting delay: " + str(getDelay(lasttime)) + " seconds")
+                    sendMsg(msg)
+                    print("Time now " + datetime.now().strftime(timef) + " Reporting delay: " + str(getDelay(lasttime)) + " seconds")
                 else:
-                    print("Quake " + str(dist) + "km away, " + locname)
+                    print("Quake mag " + mag + ". " + str(dist) + "km away, " + locname)
                 saveLast(lasttime,lastid)
 
         else:
