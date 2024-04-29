@@ -18,7 +18,7 @@ load_dotenv()
 api = "https://api.geonet.org.nz/quake?MMI=-1"
 maxdist = 300 #km
 radioHostname = os.environ["RADIO_HOSTNAME"]
-channel = os.environ.get("CHANNEL_INDEX",1)
+channel = int(os.environ.get("CHANNEL_INDEX",1))
 
 
 def onConnection(interface, topic=pub.AUTO_TOPIC):
