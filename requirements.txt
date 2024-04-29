@@ -1,3 +1,6 @@
 python-dateutil
 geopy
 colorama
+meshtastic
+pubsub
+python-dotenv
