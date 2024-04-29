@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 api = "https://api.geonet.org.nz/quake?MMI=-1"
-maxdist = 300 #km
+maxdist = 400 #km
 radioHostname = os.environ["RADIO_HOSTNAME"]
 channel = int(os.environ.get("CHANNEL_INDEX",1))
 
