@@ -16,6 +16,7 @@ from dotenv import load_dotenv
 load_dotenv()
 api = "https://api.geonet.org.nz/quake?MMI=-1"
 maxdist = 400 #km
+minmag = 3
 radioHostname = os.environ["RADIO_HOSTNAME"]
 channel = int(os.environ.get("CHANNEL_INDEX",1))
 
@@ -102,7 +103,7 @@ while True:
                 locname = lastevent['properties']['locality']
                 mag = str(round(lastevent['properties']['magnitude'],1))
                 dist = dstWlg(lastpos)
-                if dist < maxdist:
+                if (dist < maxdist) and (mag >= minmag):
                     msg = str("New Quake at " +lasttime.strftime("%r %A %d %B %y")+ ". Magnitude: " + mag + ". " + str(dist) + "km from Wellington, " + locname)
                     print(msg)
                     interface = connectMeshtastic(radioHostname)
