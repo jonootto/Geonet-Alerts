@@ -106,6 +106,7 @@ while True:
                     msg = str("New Quake at " +lasttime.strftime("%r %A %d %B %y")+ ". Magnitude: " + mag + ". " + str(dist) + "km from Wellington, " + locname)
                     print(msg)
                     interface = connectMeshtastic(radioHostname)
+                    print("Sending to mesh...")
                     interface.sendText(msg,channelIndex=channel,wantAck=True)
                     interface.close()
                     print("Time now " + datetime.now().strftime("%r %A %d %B %y") + " Reporting delay: " + str(getDelay(lasttime)) + " seconds")
