@@ -18,6 +18,7 @@ load_dotenv()
 api = "https://api.geonet.org.nz/quake?MMI=-1"
 maxdist = 300 #km
 radioHostname = os.environ["RADIO_HOSTNAME"]
+channel = os.environ.get("CHANNEL_INDEX",1)
 
 
 def onConnection(interface, topic=pub.AUTO_TOPIC):
@@ -102,7 +103,7 @@ while True:
                 if dist < maxdist:
                     msg = str("New Quake at " +lasttime.strftime("%r %A %d %B %y")+ ". Magnitude: " + mag + ". " + str(dist) + "km from Wellington, " + locname)
                     print(msg)
-                    interface.sendText(msg,channelIndex=1,wantAck=True,)
+                    interface.sendText(msg,channelIndex=channel,wantAck=True,)
 
                     print("Time now " + datetime.now().strftime("%r %A %d %B %y") + " Reporting delay: " + str(getDelay(lasttime)) + " seconds")
                 else:
