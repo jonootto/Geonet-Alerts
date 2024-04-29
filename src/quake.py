@@ -39,6 +39,7 @@ def getPos(coordinates):
 
 
 def getQuakes():
+    #Pull from geonet api
     r = requests.get(api,headers={"Accept": "application/vnd.geo+json;version=2"})
     if r.status_code == 200:
         return r.json()
@@ -47,19 +48,23 @@ def getQuakes():
     
 
 def utc_to_local(utc_dt):
+    #convert time into local time
     return utc_dt.replace(tzinfo=timezone.utc).astimezone(tz=None)
 
 def readSaved():
+    #load last saved event from disk
     f = open("last.txt", "r")
     return json.load(f)
 
 def getDelay(lasttime):
+        #calculate how long between quake and now (mostly delay from api having info)
         timenow = datetime.now().replace(tzinfo=None)
         lasttime = lasttime.replace(tzinfo=None)
         timediff = (timenow - lasttime).total_seconds()
         return round(timediff)
 
 def saveLast(timestamp,id):
+    #store event to disk so its not resent if script restarted
     data = {
         "timestamp" : str(timestamp),
         "id" : str(id)
@@ -69,6 +74,7 @@ def saveLast(timestamp,id):
     return
 
 def connectMeshtastic(host):
+    #connect to meshtastic radio
     while True:
         try:
             print("Connecting to radio...")
@@ -80,6 +86,7 @@ def connectMeshtastic(host):
     return radio
 
 def sendMsg(msgtxt):
+    #send message over spefified channel
     interface = connectMeshtastic(radioHostname)
     print("Sending to mesh...")
     interface.sendText(msgtxt,channelIndex=channel,wantAck=True)
