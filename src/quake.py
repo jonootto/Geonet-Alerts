@@ -6,7 +6,6 @@ import time
 from geopy import distance
 from colorama import Fore, Style
 import meshtastic
-import meshtastic
 import meshtastic.tcp_interface
 from pubsub import pub
 import time
@@ -65,23 +64,24 @@ def saveLast(timestamp,id):
         json.dump(data, f, ensure_ascii=False)
     return
 
-pub.subscribe(onConnection, "meshtastic.connection.established")
-
-disconnected = True
-
-while disconnected:
-    try:
-        print("Connecting to Radio...")
-        interface = meshtastic.tcp_interface.TCPInterface(hostname=radioHostname)
-        disconnected = False
-    except:
-        print(Fore.RED + "Connection Failed"  + Style.RESET_ALL)
-
+def connectMeshtastic(host):
+    while True:
+        try:
+            print("Connecting to radio...")
+            radio = meshtastic.tcp_interface.TCPInterface(hostname=host)
+            break
+        except Exception as e: 
+            print(e)
+            print(Fore.RED + "Connection Failed" + Style.RESET_ALL)
+    return radio
 
 lastQuakes = ""
 savedEvent = readSaved()
 savedTime = parse(savedEvent["timestamp"]).replace(tzinfo=None)
 print("Last event "+ savedEvent["id"] +" at " + savedTime.strftime("%r %A %d %B %y"))
+
+pub.subscribe(onConnection, "meshtastic.connection.established")
+
 
 while True:
     quakes = getQuakes()
@@ -103,8 +103,9 @@ while True:
                 if dist < maxdist:
                     msg = str("New Quake at " +lasttime.strftime("%r %A %d %B %y")+ ". Magnitude: " + mag + ". " + str(dist) + "km from Wellington, " + locname)
                     print(msg)
-                    interface.sendText(msg,channelIndex=channel,wantAck=True,)
-
+                    interface = connectMeshtastic(radioHostname)
+                    interface.sendText(msg,channelIndex=channel,wantAck=True)
+                    interface.close()
                     print("Time now " + datetime.now().strftime("%r %A %d %B %y") + " Reporting delay: " + str(getDelay(lasttime)) + " seconds")
                 else:
                     print("Quake " + str(dist) + "km away, " + locname)
