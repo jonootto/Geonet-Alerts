@@ -21,17 +21,20 @@ minmag = 3
 radioHostname = os.environ["RADIO_HOSTNAME"]
 channel = int(os.environ.get("CHANNEL_INDEX",1))
 
-
 timef = "%r %A %d %B %y"
 
 def onConnection(interface, topic=pub.AUTO_TOPIC):
+    #print notification when connection succeeds
     print("Connected to radio: " + interface.getLongName())
 
 def dstWlg(pos):
+    #Calculate distance of a positon from wellingotn airport
+    #todo: make this work with user specified location
     wellington = (-41.32, 174.81)
     return round(distance.distance(wellington, pos).km)
 
 def getPos(coordinates):
+    #convert positon json into tuple
     lat = coordinates[1]
     lon = coordinates[0]
     pos = (lat, lon)
