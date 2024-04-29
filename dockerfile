@@ -10,4 +10,4 @@ COPY src/quake.py .
 COPY src/last.txt .
 
 
-ENTRYPOINT [ "python", "quake.py" ]
+ENTRYPOINT [ "python","-u", "quake.py" ]
