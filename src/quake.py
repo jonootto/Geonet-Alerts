@@ -93,10 +93,18 @@ def connectMeshtastic(host):
 
 def sendMsg(msgtxt):
     #send message over spefified channel
-    interface = connectMeshtastic(radioHostname)
+    intf = connectMeshtastic(radioHostname)
+    time.sleep(0.5)
     print("Sending to mesh...")
-    interface.sendText(msgtxt,channelIndex=channel,wantAck=True)
-    interface.close()
+    intf.sendText(msgtxt,channelIndex=channel,wantAck=True,)
+    print("message sent")
+    time.sleep(1)
+    intf.close()
+
+def connectTest():
+    intf = connectMeshtastic(radioHostname)
+    print("Connect test successful")
+    intf.close()
 
 lastQuakes = ""
 savedEvent = readSaved()
@@ -105,9 +113,7 @@ print("Last event "+ savedEvent["id"] +" at " + savedTime.strftime(timef))
 
 
 pub.subscribe(onConnection, "meshtastic.connection.established")
-interface = connectMeshtastic(radioHostname)
-print("Connect test successful")
-interface.close()
+#connectTest()
 
 while True:
     quakes = getQuakes()
@@ -139,6 +145,3 @@ while True:
         else:
             print(Fore.RED + "Error Retreiving Quakes" + Style.RESET_ALL)
     time.sleep(5)
-
-
-interface.close()
