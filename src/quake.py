@@ -11,13 +11,14 @@ from pubsub import pub
 import time
 import os
 from dotenv import load_dotenv
+import importlib
 
 
 load_dotenv()
 
 api = "https://api.geonet.org.nz/quake?MMI=-1"
-maxdist = 400 #km
-minmag = 2
+maxdist = 600 #km
+minmag = 0
 radioHostname = os.environ["RADIO_HOSTNAME"]
 channel = int(os.environ.get("CHANNEL_INDEX",1))
 
@@ -76,25 +77,27 @@ def saveLast(timestamp,id):
         json.dump(data, f, ensure_ascii=False)
     return
 
-def connectMeshtastic(host):
-    #connect to meshtastic radio
+
+
+def sendMsg(msgtxt):
+    #send message over spefified channel
     while True:
         try:
             print("Connecting to radio...")
-            radio = meshtastic.tcp_interface.TCPInterface(hostname=host)
+            interface = meshtastic.tcp_interface.TCPInterface(hostname=radioHostname)
             break
         except Exception as e: 
             print(e)
             print(Fore.RED + "Connection Failed" + Style.RESET_ALL)
-    return radio
-
-def sendMsg(msgtxt):
-    #send message over spefified channel
-    interface = connectMeshtastic(radioHostname)
+            try:
+                del interface
+            except:
+                pass
     print("Sending to mesh...")
     interface.sendText(msgtxt,channelIndex=channel,wantAck=True)
-    interface.close()
+
     del interface
+    importlib.reload(meshtastic)
 
 lastQuakes = ""
 savedEvent = readSaved()
