@@ -107,6 +107,7 @@ print("Connect test successful")
 interface.close()
 
 while True:
+    time.sleep(5.0)
     quakes = getQuakes()
     if quakes != lastQuakes:
         lastQuakes = quakes
@@ -135,5 +136,5 @@ while True:
         else:
             print(Fore.RED + "Error Retreiving Quakes" + Style.RESET_ALL)
 
-    time.sleep(5.0)
+
 interface.close()
