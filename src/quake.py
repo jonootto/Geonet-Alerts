@@ -85,12 +85,11 @@ def connectMeshtastic(host):
         try:
             print("Connecting to radio...")
             radio = meshtastic.tcp_interface.TCPInterface(hostname=host)
-            break
+            return radio
         except Exception as e: 
             print(e)
             print(Fore.RED + "Connection Failed" + Style.RESET_ALL)
         time.sleep(0.1)
-    return radio
 
 def sendMsg(msgtxt):
     #send message over spefified channel
