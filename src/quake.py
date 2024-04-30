@@ -94,6 +94,7 @@ def sendMsg(msgtxt):
     print("Sending to mesh...")
     interface.sendText(msgtxt,channelIndex=channel,wantAck=True)
     interface.close()
+    del interface
 
 lastQuakes = ""
 savedEvent = readSaved()
@@ -102,9 +103,6 @@ print("Last event "+ savedEvent["id"] +" at " + savedTime.strftime(timef))
 
 
 pub.subscribe(onConnection, "meshtastic.connection.established")
-interface = connectMeshtastic(radioHostname)
-print("Connect test successful")
-interface.close()
 
 while True:
     quakes = getQuakes()
