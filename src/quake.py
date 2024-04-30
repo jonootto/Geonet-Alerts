@@ -135,6 +135,5 @@ while True:
         else:
             print(Fore.RED + "Error Retreiving Quakes" + Style.RESET_ALL)
 
-    time.sleep(5)
-
+    time.sleep(5.0)
 interface.close()
