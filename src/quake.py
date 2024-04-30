@@ -57,7 +57,9 @@ def utc_to_local(utc_dt):
 def readSaved():
     #load last saved event from disk
     f = open("last.txt", "r")
-    return json.load(f)
+    output  = json.load(f)
+    f.close()
+    return output
 
 def getDelay(lasttime):
         #calculate how long between quake and now (mostly delay from api having info)
@@ -74,6 +76,7 @@ def saveLast(timestamp,id):
     }
     with open('last.txt', 'w') as f:
         json.dump(data, f, ensure_ascii=False)
+        f.close()
     return
 
 def connectMeshtastic(host):
@@ -86,6 +89,7 @@ def connectMeshtastic(host):
         except Exception as e: 
             print(e)
             print(Fore.RED + "Connection Failed" + Style.RESET_ALL)
+        time.sleep(0.1)
     return radio
 
 def sendMsg(msgtxt):
@@ -107,8 +111,8 @@ print("Connect test successful")
 interface.close()
 
 while True:
-    time.sleep(5.0)
     quakes = getQuakes()
+    
     if quakes != lastQuakes:
         lastQuakes = quakes
         print("New Data")
@@ -135,6 +139,7 @@ while True:
 
         else:
             print(Fore.RED + "Error Retreiving Quakes" + Style.RESET_ALL)
+    time.sleep(5)
 
 
 interface.close()
