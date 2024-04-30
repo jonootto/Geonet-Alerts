@@ -123,7 +123,7 @@ while True:
                 locname = lastevent['properties']['locality']
                 mag = str(round(lastevent['properties']['magnitude'],1))
                 dist = dstWlg(lastpos)
-                if (dist < maxdist) and (int(mag) >= int(minmag)):
+                if (dist < maxdist) and (float(mag) >= float(minmag)):
                     msg = str("New Quake at " +lasttime.strftime(timef)+ ". Magnitude: " + mag + ". " + str(dist) + "km from Wellington, " + locname)
                     print(msg)
                     sendMsg(msg)
