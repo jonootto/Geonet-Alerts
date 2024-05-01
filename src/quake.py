@@ -12,7 +12,7 @@ import os
 from dotenv import load_dotenv
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 load_dotenv()
 
 api = "https://api.geonet.org.nz/quake?MMI=-1"
@@ -43,7 +43,7 @@ def getQuakes():
     if r.status_code == 200:
         return r.json()
     else:
-        print("Error:" + str(r.status_code))
+        logging.ERROR("Error:" + str(r.status_code))
     
 
 def utc_to_local(utc_dt):
@@ -76,7 +76,7 @@ def saveLast(timestamp,id):
 
 def sendMsg(msgtxt):
     #send message over spefified channel
-    print("Sending to mesh...")
+    logging.INFO("Sending to mesh...")
     interface.sendText(msgtxt,channelIndex=channel)
 
 
@@ -84,21 +84,21 @@ lastQuakes = ""
 savedEvent = readSaved()
 savedTime = parse(savedEvent["timestamp"]).replace(tzinfo=None)
 
-print("Last event "+ savedEvent["id"] +" at " + savedTime.strftime(timef))
+logging.INFO("Last event "+ savedEvent["id"] +" at " + savedTime.strftime(timef))
 
 try:
-    print("Connecting to radio...")
+    logging.INFO("Connecting to radio...")
     interface = meshtastic.tcp_interface.TCPInterface(hostname=radioHostname)
-    print("Connected to radio: " + interface.getLongName())
+    logging.INFO("Connected to radio: " + interface.getLongName())
 except:
-    print("error connecting")
+    logging.ERROR("error connecting")
     quit()
 
 while True:
     quakes = getQuakes()
     if quakes != lastQuakes:
         lastQuakes = quakes
-        print("New Data")
+        logging.INFO("New Data")
         if quakes:
             lastevent = quakes['features'][0]
             lasttime = utc_to_local(parse(lastevent['properties']['time']))
@@ -113,14 +113,14 @@ while True:
                 dist = dstWlg(lastpos)
                 if (dist < maxdist) and (float(mag) >= float(minmag)):
                     msg = str("New Quake at " +lasttime.strftime(timef)+ ". Magnitude: " + mag + ". " + str(dist) + "km from Wellington, " + locname)
-                    print(msg)
+                    logging.INFO(msg)
                     sendMsg(msg)
-                    print("Time now " + datetime.now().strftime(timef) + " Reporting delay: " + str(getDelay(lasttime)) + " seconds")
+                    logging.INFO("Time now " + datetime.now().strftime(timef) + " Reporting delay: " + str(getDelay(lasttime)) + " seconds")
                 else:
-                    print("Quake mag " + mag + ". " + str(dist) + "km away, " + locname)
+                    logging.INFO("Quake mag " + mag + ". " + str(dist) + "km away, " + locname)
                 saveLast(lasttime,lastid)
 
         else:
-            print(Fore.RED + "Error Retreiving Quakes" + Style.RESET_ALL)
+            logging.ERROR(Fore.RED + "Error Retreiving Quakes" + Style.RESET_ALL)
 
     time.sleep(5.0)
