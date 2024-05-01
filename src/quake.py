@@ -7,13 +7,12 @@ from geopy import distance
 from colorama import Fore, Style
 import meshtastic
 import meshtastic.tcp_interface
-from pubsub import pub
 import time
 import os
 from dotenv import load_dotenv
-import importlib
+import logging
 
-
+logging.basicConfig(level=logging.DEBUG)
 load_dotenv()
 
 api = "https://api.geonet.org.nz/quake?MMI=-1"
@@ -23,10 +22,6 @@ radioHostname = os.environ["RADIO_HOSTNAME"]
 channel = int(os.environ.get("CHANNEL_INDEX",1))
 
 timef = "%r %A %d %B %y"
-
-def onConnection(interface, topic=pub.AUTO_TOPIC):
-    #print notification when connection succeeds
-    print("Connected to radio: " + interface.getLongName())
 
 def dstWlg(pos):
     #Calculate distance of a positon from wellingotn airport
@@ -81,31 +76,23 @@ def saveLast(timestamp,id):
 
 def sendMsg(msgtxt):
     #send message over spefified channel
-    while True:
-        try:
-            print("Connecting to radio...")
-            interface = meshtastic.tcp_interface.TCPInterface(hostname=radioHostname)
-            break
-        except Exception as e: 
-            print(e)
-            print(Fore.RED + "Connection Failed" + Style.RESET_ALL)
-            try:
-                del interface
-            except:
-                pass
     print("Sending to mesh...")
-    interface.sendText(msgtxt,channelIndex=channel,wantAck=True)
+    interface.sendText(msgtxt,channelIndex=channel)
 
-    del interface
-    importlib.reload(meshtastic)
 
 lastQuakes = ""
 savedEvent = readSaved()
 savedTime = parse(savedEvent["timestamp"]).replace(tzinfo=None)
+
 print("Last event "+ savedEvent["id"] +" at " + savedTime.strftime(timef))
 
-
-pub.subscribe(onConnection, "meshtastic.connection.established")
+try:
+    print("Connecting to radio...")
+    interface = meshtastic.tcp_interface.TCPInterface(hostname=radioHostname)
+    print("Connected to radio: " + interface.getLongName())
+except:
+    print("error connecting")
+    quit()
 
 while True:
     quakes = getQuakes()
@@ -137,4 +124,3 @@ while True:
             print(Fore.RED + "Error Retreiving Quakes" + Style.RESET_ALL)
 
     time.sleep(5.0)
-interface.close()
