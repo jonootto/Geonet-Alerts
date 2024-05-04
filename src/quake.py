@@ -112,7 +112,7 @@ while True:
                 mag = str(round(lastevent['properties']['magnitude'],1))
                 dist = dstWlg(lastpos)
                 if (dist < maxdist) and (float(mag) >= float(minmag)):
-                    msg = str("New Quake at " +lasttime.strftime(timef)+ ". Magnitude: " + mag + ". " + str(dist) + "km from Wellington, " + locname)
+                    msg = str("New Quake at " +lasttime.strftime(timef)+ ". Magnitude: " + mag + ". " + str(dist) + "km from Wellington, " + locname + ".")
                     logging.info(msg)
                     sendMsg(msg)
                     logging.info("Time now " + datetime.now().strftime(timef) + " Reporting delay: " + str(getDelay(lasttime)) + " seconds")
