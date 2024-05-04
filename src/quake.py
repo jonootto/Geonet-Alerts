@@ -83,7 +83,7 @@ def sendMsg(msgtxt):
 lastQuakes = ""
 savedEvent = readSaved()
 savedTime = parse(savedEvent["timestamp"]).replace(tzinfo=None)
-logging.warn("Starting up...")
+logging.warning("Starting up...")
 logging.info("Last event "+ savedEvent["id"] +" at " + savedTime.strftime(timef))
 
 try:
