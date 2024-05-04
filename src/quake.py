@@ -15,8 +15,8 @@ import logging
 logging.basicConfig(level=logging.INFO)
 load_dotenv()
 
-api = "https://api.geonet.org.nz/quake?MMI=-1"
-maxdist = 600 #km
+api = "https://api.geonet.org.nz/quake?MMI=3"
+maxdist = 500 #km
 minmag = 0
 radioHostname = os.environ["RADIO_HOSTNAME"]
 channel = int(os.environ.get("CHANNEL_INDEX",1))
